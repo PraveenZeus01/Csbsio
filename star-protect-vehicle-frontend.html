@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Star Protect Vehicle Insurance System</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #eef2f5;
+    margin: 0;
+    padding: 0;
+  }
+
+  .topbar {
+    background-color: #1a3c6e;
+    color: white;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .topbar h1 { font-size: 22px; margin: 0; }
+
+  .topbar button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .topbar button:hover { background-color: #c9302c; }
+
+  .container {
+    width: 400px;
+    margin: 60px auto;
+    background-color: #ffffff;
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .container-wide {
+    width: 700px;
+    margin: 40px auto;
+    background-color: #ffffff;
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  h2 { color: #1a3c6e; text-align: center; }
+
+  .subtitle, .center { text-align: center; color: #777; }
+
+  label {
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  input[type="text"], input[type="password"], input[type="date"],
+  input[type="number"], select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .radio-group { margin-top: 10px; }
+  .radio-group label { display: inline-block; font-weight: normal; margin-right: 15px; }
+
+  button[type="submit"], .btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 10px;
+    background-color: #1a3c6e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  button[type="submit"]:hover, .btn:hover { background-color: #14305a; }
+
+  .btn-danger { background-color: #d9534f; }
+  .btn-danger:hover { background-color: #c9302c; }
+
+  .message { margin-top: 15px; padding: 10px; border-radius: 4px; text-align: center; }
+  .success { background-color: #dff0d8; color: #3c763d; border: 1px solid #d6e9c6; }
+  .error { background-color: #f2dede; color: #a94442; border: 1px solid #ebccd1; }
+
+  .menu { list-style: none; padding: 0; }
+  .menu li { margin-bottom: 12px; }
+  .menu a {
+    display: block;
+    background-color: #f4f7fb;
+    color: #1a3c6e;
+    padding: 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid #d6e0ea;
+  }
+  .menu a:hover { background-color: #e2eaf5; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  table th, table td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; font-size: 14px; }
+  table th { background-color: #1a3c6e; color: white; }
+  table tr:nth-child(even) { background-color: #f5f8fb; }
+
+  .back-link { display: inline-block; margin-top: 15px; color: #1a3c6e; text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+
+  .hint { font-size: 12px; color: #777; margin-top: 2px; }
+
+  .screen { display: none; }
+</style>
+</head>
+<body>
+
+  <!-- TOP BAR (hidden until logged in) -->
+  <div class="topbar" id="topbar" style="display:none;">
+    <h1 id="topbarTitle">⭐ Star Protect Vehicle</h1>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <!-- ===================== LOGIN SCREEN ===================== -->
+  <div class="screen" id="loginScreen" style="display:block;">
+    <div class="container">
+      <h2>⭐ Star Protect Vehicle</h2>
+      <p class="subtitle">Vehicle Insurance Management System</p>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <label>Login As:</label>
+        <div class="radio-group">
+          <label><input type="radio" name="loginType" value="admin" checked> Admin</label>
+          <label><input type="radio" name="loginType" value="underwriter"> Underwriter</label>
+        </div>
+
+        <label for="loginId">User ID</label>
+        <input type="text" id="loginId" required>
+
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" required>
+
+        <div class="message error" id="loginMessage" style="display:none;"></div>
+
+        <button type="submit">Login</button>
+      </form>
+
+      <p class="hint center">Default Admin Login &nbsp;|&nbsp; ID: admin &nbsp;|&nbsp; Password: Admin@123</p>
+    </div>
+  </div>
+
+  <!-- ===================== ADMIN HOME ===================== -->
+  <div class="screen" id="adminHome">
+    <div class="container">
+      <h2>Welcome, Admin</h2>
+      <p class="subtitle">Manage Underwriters</p>
+      <ul class="menu">
+        <li><a href="#" onclick="previewNextId(); showScreen('registerUnderwriter'); return false;">➕ Underwriter Registration</a></li>
+        <li><a href="#" onclick="showScreen('searchUnderwriter'); return false;">🔍 Search Underwriter by ID</a></li>
+        <li><a href="#" onclick="showScreen('updatePassword'); return false;">🔑 Update Underwriter Password</a></li>
+        <li><a href="#" onclick="showScreen('deleteUnderwriter'); return false;">🗑️ Delete Underwriter by ID</a></li>
+        <li><a href="#" onclick="goToViewUnderwriters(); return false;">📋 View All Underwriters</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===================== REGISTER UNDERWRITER ===================== -->
+  <div class="screen" id="registerUnderwriter">
+    <div class="container">
+      <h2>Underwriter Registration</h2>
+      <div class="message" id="registerMessage" style="display:none;"></div>
+
+      <form id="registerForm" onsubmit="registerUnderwriter(event)">
+        <label for="newUnderwriterId">Underwriter ID (auto populated)</label>
+        <input type="text" id="newUnderwriterId" readonly>
+
+        <label for="regName">Name</label>
+        <input type="text" id="regName" maxlength="50" required>
+        <div class="hint">Maximum 50 characters</div>
+
+        <label for="regDob">Date of Birth</label>
+        <input type="date" id="regDob" required>
+
+        <label for="regJoining">Joining Date</label>
+        <input type="date" id="regJoining" required>
+
+        <label for="regPassword">Default Password</label>
+        <input type="text" id="regPassword" required>
+        <div class="hint">Letters + numbers + at least one special character (e.g. Pass@123)</div>
+
+        <button type="submit">Register Underwriter</button>
+      </form>
+
+      <a class="back-link" href="#" onclick="showScreen('adminHome'); return false;">&larr; Back to Admin Home</a>
+    </div>
+  </div>
+
+  <!-- ===================== SEARCH UNDERWRITER ===================== -->
+  <div class="screen" id="searchUnderwriter">
+    <div class="container">
+      <h2>Search Underwriter by ID</h2>
+
+      <form id="searchForm" onsubmit="searchUnderwriter(event)">
+        <label for="searchId">Underwriter ID</label>
+        <input type="text" id="searchId" required>
+        <button type="submit">Search</button>
+      </form>
+
+      <div id="searchResult"></div>
+
+      <a class="back-link" href="#" onclick="showScreen('adminHome'); return false;">&larr; Back to Admin Home</a>
+    </div>
+  </div>
+
+  <!-- ===================== UPDATE PASSWORD ===================== -->
+  <div class="screen" id="updatePassword">
+    <div class="container">
+      <h2>Update Underwriter Password</h2>
+      <div class="message" id="updateMessage" style="display:none;"></div>
+
+      <form id="findUnderwriterForm" onsubmit="findForPasswordUpdate(event)">
+        <label for="updateSearchId">Underwriter ID</label>
+        <input type="text" id="updateSearchId" required>
+        <button type="submit">Find Underwriter</button>
+      </form>
+
+      <div id="updatePasswordSection" style="display:none;">
+        <hr>
+        <p id="updateFoundName"></p>
+        <form id="updatePasswordForm" onsubmit="updatePassword(event)">
+          <label for="updateNewPassword">New Password</label>
+          <input type="text" id="updateNewPassword" required>
+          <div class="hint">Letters + numbers + at least one special character</div>
+          <button type="submit">Update Password</button>
+        </form>
+      </div>
+
+      <a class="back-link" href="#" onclick="showScreen('adminHome'); return false;">&larr; Back to Admin Home</a>
+    </div>
+  </div>
+
+  <!-- ===================== DELETE UNDERWRITER ===================== -->
+  <div class="screen" id="deleteUnderwriter">
+    <div class="container">
+      <h2>Delete Underwriter</h2>
+      <div class="message" id="deleteMessage" style="display:none;"></div>
+
+      <form id="deleteForm" onsubmit="deleteUnderwriter(event)">
+        <label for="deleteId">Underwriter ID</label>
+        <input type="text" id="deleteId" required>
+        <button type="submit" class="btn-danger">Delete Underwriter</button>
+      </form>
+
+      <a class="back-link" href="#" onclick="showScreen('adminHome'); return false;">&larr; Back to Admin Home</a>
+    </div>
+  </div>
+
+  <!-- ===================== VIEW ALL UNDERWRITERS ===================== -->
+  <div class="screen" id="viewUnderwriters">
+    <div class="container-wide">
+      <h2>All Underwriters</h2>
+      <table>
+        <tr><th>Underwriter ID</th><th>Name</th><th>DOB</th><th>Joining Date</th></tr>
+        <tbody id="underwritersTableBody"></tbody>
+      </table>
+      <a class="back-link" href="#" onclick="showScreen('adminHome'); return false;">&larr; Back to Admin Home</a>
+    </div>
+  </div>
+
+  <!-- ===================== UNDERWRITER HOME ===================== -->
+  <div class="screen" id="underwriterHome">
+    <div class="container">
+      <h2 id="uwWelcome">Welcome</h2>
+      <p class="subtitle" id="uwIdDisplay"></p>
+      <ul class="menu">
+        <li><a href="#" onclick="goToCreatePolicy(); return false;">➕ Create a New Vehicle Insurance</a></li>
+        <li><a href="#" onclick="goToViewPolicies(); return false;">📋 View My Policies</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===================== CREATE POLICY ===================== -->
+  <div class="screen" id="createPolicy">
+    <div class="container">
+      <h2>Create New Vehicle Insurance</h2>
+      <div class="message" id="policyMessage" style="display:none;"></div>
+
+      <form id="createPolicyForm" onsubmit="createPolicy(event)">
+
+        <label for="policyVehicleNo">Vehicle No</label>
+        <input type="text" id="policyVehicleNo" maxlength="10" required>
+        <div class="hint">Maximum 10 characters</div>
+
+        <label for="policyVehicleType">Vehicle Type</label>
+        <select id="policyVehicleType" required>
+          <option value="2-wheeler">2-Wheeler</option>
+          <option value="4-wheeler">4-Wheeler</option>
+        </select>
+
+        <label for="policyCustomerName">Customer Name</label>
+        <input type="text" id="policyCustomerName" maxlength="50" required>
+
+        <label for="policyEngineNo">Engine No</label>
+        <input type="text" id="policyEngineNo" required>
+
+        <label for="policyChasisNo">Chasis No</label>
+        <input type="text" id="policyChasisNo" required>
+
+        <label for="policyPhoneNo">Phone No</label>
+        <input type="text" id="policyPhoneNo" maxlength="10" required>
+        <div class="hint">10 digit number</div>
+
+        <label for="policyPremiumAmt">Premium Amount</label>
+        <input type="number" id="policyPremiumAmt" step="0.01" min="0" required>
+
+        <label for="policyType">Type</label>
+        <select id="policyType" required>
+          <option value="Full Insurance">Full Insurance</option>
+          <option value="Third Party">Third Party</option>
+        </select>
+
+        <label for="policyFromDate">From Date</label>
+        <input type="date" id="policyFromDate" required>
+
+        <label for="policyToDate">To Date</label>
+        <input type="date" id="policyToDate" required>
+
+        <label for="policyUnderwriterId">Underwriter ID</label>
+        <input type="text" id="policyUnderwriterId" readonly>
+
+        <button type="submit">Create Policy</button>
+      </form>
+
+      <a class="back-link" href="#" onclick="showScreen('underwriterHome'); return false;">&larr; Back to Underwriter Home</a>
+    </div>
+  </div>
+
+  <!-- ===================== VIEW MY POLICIES ===================== -->
+  <div class="screen" id="viewPolicies">
+    <div class="container-wide">
+      <h2>Policies Created By Me</h2>
+      <table>
+        <tr>
+          <th>Vehicle No</th><th>Type</th><th>Customer</th><th>Phone</th>
+          <th>Premium</th><th>Policy Type</th><th>From</th><th>To</th>
+        </tr>
+        <tbody id="policiesTableBody"></tbody>
+      </table>
+      <a class="back-link" href="#" onclick="showScreen('underwriterHome'); return false;">&larr; Back to Underwriter Home</a>
+    </div>
+  </div>
+
+<script>
+  // ====================================================================
+  // Star Protect Vehicle Insurance System - front end only (no server)
+  // "Database" is simulated using the browser's localStorage.
+  // ====================================================================
+
+  var currentUser = null; // { role: 'admin' | 'underwriter', id, name }
+  var pwdUpdateTargetId = null;
+
+  // ---------- data helpers (localStorage = our "tables") ----------
+  function initData() {
+    if (!localStorage.getItem('spv_admin')) {
+      localStorage.setItem('spv_admin', JSON.stringify({ id: 'admin', password: 'Admin@123' }));
+    }
+    if (!localStorage.getItem('spv_underwriters')) {
+      localStorage.setItem('spv_underwriters', JSON.stringify([]));
+    }
+    if (!localStorage.getItem('spv_policies')) {
+      localStorage.setItem('spv_policies', JSON.stringify([]));
+    }
+    if (!localStorage.getItem('spv_counter')) {
+      localStorage.setItem('spv_counter', '0');
+    }
+  }
+
+  function getAdmin() { return JSON.parse(localStorage.getItem('spv_admin')); }
+  function getUnderwriters() { return JSON.parse(localStorage.getItem('spv_underwriters')); }
+  function saveUnderwriters(list) { localStorage.setItem('spv_underwriters', JSON.stringify(list)); }
+  function getPolicies() { return JSON.parse(localStorage.getItem('spv_policies')); }
+  function savePolicies(list) { localStorage.setItem('spv_policies', JSON.stringify(list)); }
+
+  // ---------- screen navigation ----------
+  function showScreen(id) {
+    var screens = document.getElementsByClassName('screen');
+    for (var i = 0; i < screens.length; i++) {
+      screens[i].style.display = 'none';
+    }
+    document.getElementById(id).style.display = 'block';
+  }
+
+  function showTopbar(show) {
+    document.getElementById('topbar').style.display = show ? 'flex' : 'none';
+  }
+
+  function showMessage(el, text, type) {
+    el.innerText = text;
+    el.className = 'message ' + type;
+    el.style.display = 'block';
+  }
+
+  // ---------- login / logout ----------
+  function handleLogin(e) {
+    e.preventDefault();
+    var type = document.querySelector('input[name="loginType"]:checked').value;
+    var id = document.getElementById('loginId').value.trim();
+    var pwd = document.getElementById('loginPassword').value;
+    var msg = document.getElementById('loginMessage');
+
+    if (type === 'admin') {
+      var admin = getAdmin();
+      if (id === admin.id && pwd === admin.password) {
+        currentUser = { role: 'admin', id: id };
+        msg.style.display = 'none';
+        document.getElementById('loginForm').reset();
+        showTopbar(true);
+        showScreen('adminHome');
+        return;
+      }
+    } else {
+      var list = getUnderwriters();
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id === id && list[i].password === pwd) {
+          currentUser = { role: 'underwriter', id: id, name: list[i].name };
+          msg.style.display = 'none';
+          document.getElementById('loginForm').reset();
+          document.getElementById('uwWelcome').innerText = 'Welcome, ' + list[i].name;
+          document.getElementById('uwIdDisplay').innerText = 'Underwriter ID: ' + id;
+          showTopbar(true);
+          showScreen('underwriterHome');
+          return;
+        }
+      }
+    }
+
+    showMessage(msg, 'Invalid User ID or Password.', 'error');
+  }
+
+  function logout() {
+    currentUser = null;
+    showTopbar(false);
+    showScreen('loginScreen');
+  }
+
+  // ---------- underwriter registration ----------
+  function previewNextId() {
+    var counter = parseInt(localStorage.getItem('spv_counter')) + 1;
+    var nextId = 'UW' + String(counter).padStart(3, '0');
+    document.getElementById('newUnderwriterId').value = nextId;
+  }
+
+  function registerUnderwriter(e) {
+    e.preventDefault();
+    var name = document.getElementById('regName').value.trim();
+    var dob = document.getElementById('regDob').value;
+    var joining = document.getElementById('regJoining').value;
+    var password = document.getElementById('regPassword').value;
+    var msg = document.getElementById('registerMessage');
+
+    var passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
+
+    if (name.length > 50) {
+      showMessage(msg, 'Name cannot be more than 50 characters.', 'error');
+      return;
+    }
+    if (!passwordPattern.test(password)) {
+      showMessage(msg, 'Password must contain letters, numbers and at least one special character.', 'error');
+      return;
+    }
+
+    var counter = parseInt(localStorage.getItem('spv_counter')) + 1;
+    var newId = 'UW' + String(counter).padStart(3, '0');
+    localStorage.setItem('spv_counter', counter);
+
+    var list = getUnderwriters();
+    list.push({ id: newId, name: name, dob: dob, joiningDate: joining, password: password });
+    saveUnderwriters(list);
+
+    showMessage(msg, 'Underwriter registered successfully! Underwriter ID: ' + newId, 'success');
+    document.getElementById('registerForm').reset();
+    previewNextId();
+  }
+
+  // ---------- search underwriter ----------
+  function searchUnderwriter(e) {
+    e.preventDefault();
+    var id = document.getElementById('searchId').value.trim();
+    var list = getUnderwriters();
+    var result = document.getElementById('searchResult');
+
+    var found = null;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) { found = list[i]; break; }
+    }
+
+    if (found) {
+      result.innerHTML =
+        '<table><tr><th>Field</th><th>Value</th></tr>' +
+        '<tr><td>Underwriter ID</td><td>' + found.id + '</td></tr>' +
+        '<tr><td>Name</td><td>' + found.name + '</td></tr>' +
+        '<tr><td>DOB</td><td>' + found.dob + '</td></tr>' +
+        '<tr><td>Joining Date</td><td>' + found.joiningDate + '</td></tr></table>';
+    } else {
+      result.innerHTML = '<div class="message error">No underwriter found with ID "' + id + '".</div>';
+    }
+  }
+
+  // ---------- update password ----------
+  function findForPasswordUpdate(e) {
+    e.preventDefault();
+    var id = document.getElementById('updateSearchId').value.trim();
+    var list = getUnderwriters();
+    var found = null;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) { found = list[i]; break; }
+    }
+
+    var section = document.getElementById('updatePasswordSection');
+    var msg = document.getElementById('updateMessage');
+
+    if (found) {
+      pwdUpdateTargetId = found.id;
+      document.getElementById('updateFoundName').innerText = 'Name: ' + found.name;
+      section.style.display = 'block';
+      msg.style.display = 'none';
+    } else {
+      section.style.display = 'none';
+      showMessage(msg, 'No underwriter found with that ID.', 'error');
+    }
+  }
+
+  function updatePassword(e) {
+    e.preventDefault();
+    var newPwd = document.getElementById('updateNewPassword').value;
+    var passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
+    var msg = document.getElementById('updateMessage');
+
+    if (!passwordPattern.test(newPwd)) {
+      showMessage(msg, 'Password must contain letters, numbers and at least one special character.', 'error');
+      return;
+    }
+
+    var list = getUnderwriters();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === pwdUpdateTargetId) {
+        list[i].password = newPwd;
+        break;
+      }
+    }
+    saveUnderwriters(list);
+
+    showMessage(msg, 'Password updated successfully for ' + pwdUpdateTargetId + '.', 'success');
+    document.getElementById('updatePasswordForm').reset();
+    document.getElementById('updatePasswordSection').style.display = 'none';
+  }
+
+  // ---------- delete underwriter ----------
+  function deleteUnderwriter(e) {
+    e.preventDefault();
+    var id = document.getElementById('deleteId').value.trim();
+    var msg = document.getElementById('deleteMessage');
+
+    if (!confirm('Are you sure you want to delete underwriter ' + id + '?')) {
+      return;
+    }
+
+    var list = getUnderwriters();
+    var newList = [];
+    var foundFlag = false;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) { foundFlag = true; continue; }
+      newList.push(list[i]);
+    }
+
+    if (foundFlag) {
+      saveUnderwriters(newList);
+      showMessage(msg, 'Underwriter ' + id + ' deleted successfully.', 'success');
+    } else {
+      showMessage(msg, 'No underwriter found with ID ' + id + '.', 'error');
+    }
+    document.getElementById('deleteForm').reset();
+  }
+
+  // ---------- view all underwriters ----------
+  function goToViewUnderwriters() {
+    renderUnderwritersTable();
+    showScreen('viewUnderwriters');
+  }
+
+  function renderUnderwritersTable() {
+    var list = getUnderwriters();
+    var tbody = document.getElementById('underwritersTableBody');
+    tbody.innerHTML = '';
+
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No underwriters found.</td></tr>';
+      return;
+    }
+    for (var i = 0; i < list.length; i++) {
+      tbody.innerHTML += '<tr><td>' + list[i].id + '</td><td>' + list[i].name + '</td><td>' +
+        list[i].dob + '</td><td>' + list[i].joiningDate + '</td></tr>';
+    }
+  }
+
+  // ---------- create vehicle policy ----------
+  function goToCreatePolicy() {
+    document.getElementById('policyUnderwriterId').value = currentUser.id;
+    showScreen('createPolicy');
+  }
+
+  function createPolicy(e) {
+    e.preventDefault();
+    var vehicleNo = document.getElementById('policyVehicleNo').value.trim();
+    var vehicleType = document.getElementById('policyVehicleType').value;
+    var customerName = document.getElementById('policyCustomerName').value.trim();
+    var engineNo = document.getElementById('policyEngineNo').value.trim();
+    var chasisNo = document.getElementById('policyChasisNo').value.trim();
+    var phoneNo = document.getElementById('policyPhoneNo').value.trim();
+    var premiumAmt = document.getElementById('policyPremiumAmt').value;
+    var policyType = document.getElementById('policyType').value;
+    var fromDate = document.getElementById('policyFromDate').value;
+    var toDate = document.getElementById('policyToDate').value;
+    var msg = document.getElementById('policyMessage');
+
+    if (vehicleNo.length > 10) {
+      showMessage(msg, 'Vehicle No cannot be more than 10 characters.', 'error'); return;
+    }
+    if (customerName.length > 50) {
+      showMessage(msg, 'Customer Name cannot be more than 50 characters.', 'error'); return;
+    }
+    if (!/^[0-9]{10}$/.test(phoneNo)) {
+      showMessage(msg, 'Phone Number must be exactly 10 digits.', 'error'); return;
+    }
+    if (toDate < fromDate) {
+      showMessage(msg, 'To Date cannot be earlier than From Date.', 'error'); return;
+    }
+
+    var list = getPolicies();
+    list.push({
+      vehicleNo: vehicleNo, vehicleType: vehicleType, customerName: customerName,
+      engineNo: engineNo, chasisNo: chasisNo, phoneNo: phoneNo, premiumAmt: premiumAmt,
+      policyType: policyType, fromDate: fromDate, toDate: toDate, underwriterId: currentUser.id
+    });
+    savePolicies(list);
+
+    showMessage(msg, 'Vehicle Insurance Policy created successfully!', 'success');
+    document.getElementById('createPolicyForm').reset();
+    document.getElementById('policyUnderwriterId').value = currentUser.id;
+  }
+
+  // ---------- view my policies ----------
+  function goToViewPolicies() {
+    renderMyPolicies();
+    showScreen('viewPolicies');
+  }
+
+  function renderMyPolicies() {
+    var list = getPolicies();
+    var tbody = document.getElementById('policiesTableBody');
+    tbody.innerHTML = '';
+
+    var mine = [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].underwriterId === currentUser.id) { mine.push(list[i]); }
+    }
+
+    if (mine.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No policies created yet.</td></tr>';
+      return;
+    }
+    for (var i = 0; i < mine.length; i++) {
+      var p = mine[i];
+      tbody.innerHTML += '<tr><td>' + p.vehicleNo + '</td><td>' + p.vehicleType + '</td><td>' +
+        p.customerName + '</td><td>' + p.phoneNo + '</td><td>' + p.premiumAmt + '</td><td>' +
+        p.policyType + '</td><td>' + p.fromDate + '</td><td>' + p.toDate + '</td></tr>';
+    }
+  }
+
+  // ---------- run on page load ----------
+  window.onload = function () {
+    initData();
+    previewNextId();
+    showScreen('loginScreen');
+  };
+</script>
+
+</body>
+</html>
